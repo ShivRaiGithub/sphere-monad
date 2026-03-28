@@ -16,11 +16,12 @@ export default function CommunityCard({ community }: CommunityCardProps) {
   return (
     <Link
       href={`/${community.id.toString()}`}
-      className="group relative overflow-hidden rounded-2xl border border-white/25 bg-white/10 p-4 backdrop-blur-xl shadow-[0_20px_50px_rgba(12,40,93,0.3)] transition duration-300 hover:-translate-y-1.5 hover:scale-[1.035] hover:border-emerald-200/70 hover:brightness-110 hover:shadow-[0_24px_56px_rgba(74,222,128,0.35)]"
+      className="group relative overflow-hidden rounded-2xl border border-white/25 bg-white/10 p-6 backdrop-blur-xl shadow-[0_20px_50px_rgba(12,40,93,0.3)] transition duration-300 hover:-translate-y-1.5 hover:scale-[1.035] hover:border-emerald-200/70 hover:brightness-110 hover:shadow-[0_24px_56px_rgba(74,222,128,0.35)]"
     >
       <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-cyan-200/12 to-transparent" />
 
-      <div className="relative mb-4 h-44 overflow-hidden rounded-xl border border-white/20 bg-slate-900/20">
+      <div className="relative mb-6 h-44 overflow-hidden rounded-xl border border-white/20 bg-slate-900/20">
+
         <div className="absolute left-1/2 top-[56%] h-24 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-300/30 blur-xl transition duration-300 group-hover:bg-emerald-200/45" />
 
         <Image
@@ -57,7 +58,6 @@ export default function CommunityCard({ community }: CommunityCardProps) {
         <p className="text-xs text-cyan-100/75">Creator: <span className="font-mono text-cyan-50/95">{truncateAddress(community.creator)}</span></p>
         <div className="flex items-center justify-between pt-2">
           <span className="rounded-lg border border-cyan-100/30 bg-cyan-400/10 px-2 py-1 text-xs text-cyan-50/90">ID #{community.id.toString()}</span>
-          <span className="text-xs text-emerald-100/80">Awaiting members</span>
         </div>
       </div>
     </Link>

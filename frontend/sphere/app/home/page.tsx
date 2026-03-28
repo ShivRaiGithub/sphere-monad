@@ -50,9 +50,11 @@ export default function HomePage() {
         ))}
       </div>
 
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 py-4 sm:px-8 lg:px-12">
+      <div className="relative z-10 w-full px-4 py-4 sm:px-8 lg:px-12">
         <Navbar onCreateCommunity={() => { setShowCreate(true); resetWrite(); }} />
+      </div>
 
+      <div className="relative z-10 mx-auto flex min-h-[calc(100vh-100px)] w-full max-w-7xl flex-col px-4 pb-4 sm:px-8 lg:px-12">
         <main className="flex-1 pb-10 pt-8 sm:pt-10">
           <PageHeader
             title="Discover Communities"
@@ -66,6 +68,7 @@ export default function HomePage() {
           />
         </main>
       </div>
+
 
       {showCreate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">

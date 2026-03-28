@@ -3,7 +3,7 @@
 import { ReactNode } from 'react';
 import { WagmiProvider, createConfig, http } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';
+import { RainbowKitProvider, lightTheme } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
 import { getActiveChain, getAllChains } from '@/config/networks';
 
@@ -28,9 +28,9 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider
-          theme={darkTheme({
-            accentColor: '#10b981',
-            accentColorForeground: '#fff',
+          theme={lightTheme({
+            accentColor: '#14b8a6',
+            accentColorForeground: '#f0fdfa',
             borderRadius: 'medium',
             fontStack: 'system',
           })}

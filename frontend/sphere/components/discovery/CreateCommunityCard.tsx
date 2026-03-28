@@ -6,8 +6,8 @@ interface CreateCommunityCardProps {
 
 export default function CreateCommunityCard({ onCreateCommunity }: CreateCommunityCardProps) {
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-dashed border-emerald-200/55 bg-emerald-300/10 p-4 backdrop-blur-xl shadow-[0_20px_50px_rgba(6,78,59,0.2)] transition duration-300 hover:-translate-y-1.5 hover:scale-[1.03] hover:border-emerald-200/80 hover:bg-emerald-300/15">
-      <div className="relative mb-4 h-44 overflow-hidden rounded-xl border border-white/20 bg-slate-900/20">
+    <div className="group relative overflow-hidden rounded-2xl border border-dashed border-emerald-200/55 bg-emerald-300/10 p-6 backdrop-blur-xl shadow-[0_20px_50px_rgba(6,78,59,0.2)] transition duration-300 hover:-translate-y-1.5 hover:scale-[1.03] hover:border-emerald-200/80 hover:bg-emerald-300/15">
+      <div className="relative mb-6 h-44 overflow-hidden rounded-xl border border-white/20 bg-slate-900/20">
         <div className="absolute left-1/2 top-[56%] h-24 w-44 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-300/35 blur-xl transition duration-300 group-hover:bg-emerald-200/50" />
 
         <Image
@@ -28,11 +28,12 @@ export default function CreateCommunityCard({ onCreateCommunity }: CreateCommuni
         <p className="text-sm leading-6 text-emerald-50/88">Create a fresh environment and shape the next community from the ground up.</p>
         <button
           onClick={onCreateCommunity}
-          className="mt-2 w-full rounded-xl border border-emerald-200/65 bg-emerald-400/85 px-4 py-2.5 text-sm font-semibold text-emerald-950 transition duration-300 hover:shadow-[0_15px_30px_rgba(74,222,128,0.4)]"
+          className="mt-2 w-full rounded-xl border border-emerald-200/65 bg-emerald-400/85 px-4 py-3 text-sm font-semibold text-emerald-950 transition duration-300 hover:shadow-[0_15px_30px_rgba(74,222,128,0.4)]"
         >
           Create Community
         </button>
       </div>
+
     </div>
   );
 }

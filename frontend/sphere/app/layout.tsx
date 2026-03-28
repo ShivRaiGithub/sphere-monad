@@ -19,6 +19,11 @@ export const metadata: Metadata = {
   title: 'Sphere — On-Chain Community Platform',
   description:
     'Interactive on-chain community platform. Join communities, grow your tree, and connect with others on an isometric pixel grid.',
+  icons: {
+    icon: '/favicon/favicon.ico',
+    shortcut: '/favicon/favicon.ico',
+    apple: '/favicon/apple-touch-icon.png',
+  },
 };
 
 export default function RootLayout({

@@ -23,7 +23,7 @@ export default function Navbar({ onCreateCommunity }: NavbarProps) {
     <header className="rounded-2xl border border-white/20 bg-white/10 px-4 py-3 backdrop-blur-xl shadow-[0_8px_35px_rgba(14,55,130,0.2)] sm:px-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-3">
-          <Image src="/logo.png" alt="Sphere logo" width={42} height={42} className="h-10 w-10 rounded-lg bg-white/20 p-1" />
+          <Image src="/logo.png" alt="Sphere logo" width={42} height={42} className="h-10 w-10 rounded-lg" />
           <span className="text-xl font-semibold tracking-wide text-white">Sphere</span>
         </Link>
 
@@ -51,10 +51,11 @@ export default function Navbar({ onCreateCommunity }: NavbarProps) {
 
           <button
             onClick={onCreateCommunity}
-            className="rounded-xl border border-emerald-300/75 bg-emerald-400/90 px-4 py-2 text-sm font-semibold text-emerald-950 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(74,222,128,0.45)]"
+            className="rounded-xl border border-emerald-300/75 bg-emerald-400/90 px-6 py-3 text-sm font-semibold text-emerald-950 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(74,222,128,0.45)]"
           >
             + Create Community
           </button>
+
         </div>
       </div>
     </header>

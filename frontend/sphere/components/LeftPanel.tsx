@@ -11,12 +11,12 @@ interface LeftPanelProps {
   hidden?: boolean;
 }
 
-const STAGE_LABELS: { key: keyof StageThresholds; label: string; emoji: string }[] = [
-  { key: 'sprout', label: 'Sprout', emoji: '🌱' },
-  { key: 'stree', label: 'Small Tree', emoji: '🌿' },
-  { key: 'mtree', label: 'Medium Tree', emoji: '🌳' },
-  { key: 'ltree', label: 'Large Tree', emoji: '🌲' },
-  { key: 'etree', label: 'Elder Tree', emoji: '🏔️' },
+const STAGE_LABELS: { key: keyof StageThresholds; label: string }[] = [
+  { key: 'sprout', label: 'Sprout' },
+  { key: 'stree', label: 'Small Tree' },
+  { key: 'mtree', label: 'Medium Tree' },
+  { key: 'ltree', label: 'Large Tree' },
+  { key: 'etree', label: 'Elder Tree' },
 ];
 
 export default function LeftPanel({ gridSize, onGridSizeChange, thresholds, onThresholdsChange, hidden }: LeftPanelProps) {
@@ -57,23 +57,23 @@ export default function LeftPanel({ gridSize, onGridSizeChange, thresholds, onTh
       {musicFile && <audio ref={audioRef} src={musicFile} loop />}
 
       {!hidden && (
-        <div className={`relative bg-bg-panel/60 backdrop-blur-md border-r border-border/50 transition-all duration-300 flex flex-col z-10 shadow-[10px_0_30px_rgba(0,0,0,0.1)] ${collapsed ? 'w-10' : 'w-[280px]'}`}>
+        <div className={`relative z-10 flex flex-col border-r border-emerald-100/30 bg-[linear-gradient(180deg,rgba(30,58,138,0.2),rgba(16,185,129,0.08))] shadow-[12px_0_36px_rgba(7,28,63,0.25)] backdrop-blur-xl transition-all duration-300 after:pointer-events-none after:absolute after:inset-0 after:shadow-[inset_0_1px_0_rgba(255,255,255,0.24)] ${collapsed ? 'w-12' : 'w-70'}`}>
           <button
             onClick={() => setCollapsed(!collapsed)}
             title={collapsed ? 'Expand' : 'Collapse'}
-            className="absolute top-1/2 -translate-y-1/2 -right-3 bg-bg-card border border-border text-text-secondary w-6 h-12 flex items-center justify-center cursor-pointer text-xs transition-all duration-200 rounded-r-md z-10 hover:bg-bg-hover hover:text-white hover:border-accent shadow-md"
+            className="absolute -right-4 top-1/2 z-20 h-12 w-8 -translate-y-1/2 rounded-r-lg border border-emerald-100/35 bg-cyan-100/20 text-[0.55rem] font-semibold uppercase tracking-widest text-cyan-50 shadow-md transition-all duration-300 hover:-translate-y-1/2 hover:brightness-110 hover:shadow-[0_10px_20px_rgba(56,189,248,0.2)]"
           >
-            {collapsed ? '▶' : '◀'}
+            {collapsed ? 'Open' : 'Hide'}
           </button>
 
           {!collapsed && (
             <div className="p-6 overflow-y-auto flex-1 font-body">
-              <h3 className="font-pixel text-[0.8rem] text-accent-glow mb-6 border-b border-border/40 pb-3 uppercase tracking-widest">Controls</h3>
+              <h3 className="mb-6 border-b border-white/20 pb-3 text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-cyan-50/95">Controls</h3>
 
               {/* Grid Size */}
-              <div className="mb-6 p-4 bg-bg-card/40 rounded-xl border border-border/30">
-                <label className="block text-[0.65rem] text-text-secondary uppercase tracking-[0.15em] font-bold mb-4">
-                  Grid Size: <span className="text-text-primary tracking-normal ml-1">{gridSize} × {gridSize}</span>
+              <div className="mb-6 rounded-2xl border border-white/20 bg-cyan-100/10 p-5 shadow-[0_14px_30px_rgba(15,23,42,0.14)] backdrop-blur-md transition duration-300 hover:-translate-y-0.5 hover:brightness-110">
+                <label className="mb-4 block text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-cyan-100/90">
+                  Grid Size: <span className="ml-1 text-slate-50">{gridSize} x {gridSize}</span>
                 </label>
                 <input
                   type="range"
@@ -81,52 +81,51 @@ export default function LeftPanel({ gridSize, onGridSizeChange, thresholds, onTh
                   max={10}
                   value={gridSize}
                   onChange={(e) => onGridSizeChange(Number(e.target.value))}
-                  className="w-full h-1.5 bg-bg-panel rounded-lg appearance-none cursor-pointer accent-accent"
+                  className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-white/20 accent-emerald-300"
                 />
-                <div className="flex justify-between font-mono text-[0.65rem] text-text-muted mt-3">
+                <div className="mt-3 flex justify-between font-mono text-[0.65rem] text-cyan-100/70">
                   <span>1×1</span>
                   <span>10×10</span>
                 </div>
               </div>
 
               {/* Stage Thresholds */}
-              <div className="mb-6 p-4 bg-bg-card/40 rounded-xl border border-border/30">
-                <h4 className="font-pixel text-[0.65rem] text-accent mb-4 uppercase tracking-widest">Stage Thresholds</h4>
-                <p className="text-[0.6rem] text-text-muted mb-4">Points needed to reach each stage:</p>
+              <div className="mb-6 rounded-2xl border border-white/20 bg-cyan-100/10 p-5 shadow-[0_14px_30px_rgba(15,23,42,0.14)] backdrop-blur-md transition duration-300 hover:-translate-y-0.5 hover:brightness-110">
+                <h4 className="mb-4 text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-emerald-200">Stage Thresholds</h4>
+                <p className="mb-4 text-[0.64rem] text-cyan-100/75">Points needed to reach each stage.</p>
                 <div className="flex flex-col gap-3">
-                  {STAGE_LABELS.map(({ key, label, emoji }) => (
+                  {STAGE_LABELS.map(({ key, label }) => (
                     <div key={key} className="flex items-center gap-2">
-                      <span className="w-5 text-center text-sm">{emoji}</span>
-                      <span className="text-[0.6rem] text-text-secondary w-16 truncate">{label}</span>
+                      <span className="w-20 truncate text-[0.62rem] font-medium text-cyan-50/90">{label}</span>
                       <input
                         type="number"
                         min={0}
                         max={999}
                         value={thresholds[key]}
                         onChange={(e) => updateThreshold(key, Math.max(0, Number(e.target.value)))}
-                        className="flex-1 px-2 py-1.5 bg-bg-primary/60 border border-border/50 rounded-lg text-text-primary text-xs text-center outline-none transition-colors focus:border-accent font-mono w-16"
+                        className="w-16 flex-1 rounded-lg border border-white/25 bg-white/10 px-2 py-1.5 text-center font-mono text-xs text-slate-50 outline-none transition duration-300 focus:border-emerald-300/80 focus:shadow-[0_0_0_2px_rgba(74,222,128,0.2)]"
                       />
-                      <span className="text-[0.55rem] text-text-muted">pts</span>
+                      <span className="text-[0.55rem] text-cyan-100/65">pts</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Music */}
-              <div className="mb-6 p-4 bg-bg-card/40 rounded-xl border border-border/30">
-                <label className="block text-[0.65rem] text-text-secondary uppercase tracking-[0.15em] font-bold mb-4">Ambient Audio</label>
-                <label className="block text-center py-3 bg-bg-card/50 backdrop-blur-sm border border-dashed border-border/60 rounded-xl text-sm font-body text-text-secondary cursor-pointer transition-all duration-300 hover:border-accent/60 hover:text-accent-glow hover:bg-bg-card shadow-inner">
-                  <span className="mr-2">🎵</span> Upload Track
+              <div className="mb-6 rounded-2xl border border-white/20 bg-cyan-100/10 p-5 shadow-[0_14px_30px_rgba(15,23,42,0.14)] backdrop-blur-md transition duration-300 hover:-translate-y-0.5 hover:brightness-110">
+                <label className="mb-4 block text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-cyan-100/90">Ambient Audio</label>
+                <label className="block cursor-pointer rounded-xl border border-dashed border-white/30 bg-white/8 py-3 text-center text-sm text-cyan-50/90 shadow-inner backdrop-blur-sm transition duration-300 hover:border-emerald-300/70 hover:bg-white/14 hover:text-white">
+                  Upload Track
                   <input type="file" accept="audio/*" onChange={handleMusicUpload} className="hidden" />
                 </label>
                 {musicFile && (
                   <div className="mt-4">
-                    <p className="text-[0.65rem] font-mono text-text-muted mb-3 overflow-hidden text-ellipsis whitespace-nowrap bg-bg-panel/50 px-2 py-1.5 rounded-md border border-border/40">{musicName}</p>
+                    <p className="mb-3 overflow-hidden text-ellipsis whitespace-nowrap rounded-md border border-white/25 bg-white/10 px-2 py-1.5 font-mono text-[0.65rem] text-cyan-100/80">{musicName}</p>
                     <button
                       onClick={toggleMusic}
-                      className="w-full py-2.5 bg-accent/10 border border-accent/20 text-accent-glow rounded-xl font-body text-sm font-semibold tracking-wide cursor-pointer transition-all duration-300 hover:bg-accent/20 hover:text-white hover:border-accent/40 shadow-sm flex items-center justify-center gap-2"
+                      className="w-full rounded-xl border border-emerald-200/60 bg-linear-to-r from-emerald-300/75 to-cyan-300/70 py-2.5 text-sm font-semibold tracking-wide text-emerald-950 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_22px_rgba(74,222,128,0.35)]"
                     >
-                      {isPlaying ? '⏸ Pause' : '▶ Play'}
+                      {isPlaying ? 'Pause' : 'Play'}
                     </button>
                   </div>
                 )}
