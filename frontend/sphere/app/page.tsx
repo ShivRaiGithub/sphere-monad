@@ -1,22 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useAccount } from 'wagmi';
 import HeroEnvironment from '@/components/HeroEnvironment';
 import Link from 'next/link';
 
 export default function LandingPage() {
-  const { isConnected } = useAccount();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (isConnected) {
-      router.push('/home');
-    }
-  }, [isConnected, router]);
-
   return (
     <div className="min-h-screen flex relative overflow-hidden text-text-primary">
       {/* Full screen background environment */}

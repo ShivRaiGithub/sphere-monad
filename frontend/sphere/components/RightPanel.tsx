@@ -11,9 +11,11 @@ interface RightPanelProps {
   weights: PointWeights;
   onWeightsChange: (w: PointWeights) => void;
   onShuffle: () => void;
+  onFullscreen: () => void;
+  hidden?: boolean;
 }
 
-export default function RightPanel({ communityId, weights, onWeightsChange, onShuffle }: RightPanelProps) {
+export default function RightPanel({ communityId, weights, onWeightsChange, onShuffle, onFullscreen, hidden }: RightPanelProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [name, setName] = useState('');
   const [intro, setIntro] = useState('');
@@ -45,17 +47,21 @@ export default function RightPanel({ communityId, weights, onWeightsChange, onSh
 
   const handleJoin = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!address) return; // guard: wallet required
     if (!name.trim()) return;
     register(communityId, name.trim(), intro.trim());
   };
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!address) return; // guard: wallet required
     if (!message.trim()) return;
     sendMessage(communityId, message.trim());
   };
 
   const isCooldownError = writeError?.message?.includes('12 hours');
+
+  if (hidden) return null;
 
   return (
     <div className={`relative bg-bg-panel/60 backdrop-blur-md border-l border-border/50 transition-all duration-300 flex flex-col z-10 shadow-[-10px_0_30px_rgba(0,0,0,0.1)] ${collapsed ? 'w-10' : 'w-[320px]'}`}>
@@ -69,6 +75,16 @@ export default function RightPanel({ communityId, weights, onWeightsChange, onSh
 
       {!collapsed && (
         <div className="p-6 overflow-y-auto flex-1 font-body">
+
+          {/* Fullscreen */}
+          <div className="mb-6">
+            <button
+              onClick={onFullscreen}
+              className="w-full py-3 bg-bg-card/60 border border-border/50 hover:border-accent/40 text-text-primary rounded-xl font-pixel text-[0.6rem] tracking-widest uppercase cursor-pointer transition-all duration-300 hover:bg-bg-hover hover:text-accent-glow hover:shadow-lg flex items-center justify-center gap-2"
+            >
+              🖥️ Fullscreen Grid
+            </button>
+          </div>
 
           {/* Point Weights */}
           <div className="mb-6 p-4 bg-bg-card/40 rounded-xl border border-border/30">
@@ -122,11 +138,12 @@ export default function RightPanel({ communityId, weights, onWeightsChange, onSh
 
           <hr className="border-border/30 mb-6" />
 
-          {/* Interaction Forms */}
+          {/* Interaction Forms — only shown if wallet connected */}
           {!address ? (
-            <div className="text-center py-10 px-4 text-text-muted flex flex-col items-center justify-center">
-              <span className="text-2xl block mb-4 opacity-50 filter grayscale">🔌</span>
-              <p className="leading-relaxed text-sm">Connect your wallet to interact.</p>
+            <div className="text-center py-8 px-4 text-text-muted flex flex-col items-center justify-center bg-bg-card/20 rounded-xl border border-border/20">
+              <span className="text-2xl block mb-4 opacity-50">🔌</span>
+              <p className="leading-relaxed text-sm mb-1">Connect your wallet to join or send messages.</p>
+              <p className="text-[0.6rem] text-text-muted">Reading is available without a wallet.</p>
             </div>
           ) : !isMember ? (
             <div>

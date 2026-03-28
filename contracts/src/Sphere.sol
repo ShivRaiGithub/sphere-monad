@@ -175,9 +175,8 @@ contract Sphere {
             Status[]  memory statuses
         )
     {
-        uint256 totalMembers = memberList[_communityId].length;
         require(from < to,         "from must be less than to");
-        require(to <= totalMembers, "to exceeds member count");
+        require(to <= memberList[_communityId].length, "to exceeds member count");
 
         uint256 size = to - from;
         wallets        = new address[](size);
@@ -190,14 +189,17 @@ contract Sphere {
         statuses       = new Status[](size);
 
         for (uint256 i = 0; i < size; i++) {
-            wallets[i] = memberList[_communityId][from + i];
-            serials[i] = members[_communityId][wallets[i]].serial;
-            names[i] = members[_communityId][wallets[i]].name;
-            intros[i] = members[_communityId][wallets[i]].intro;
-            joinedAts[i] = members[_communityId][wallets[i]].joinedAt;
-            lastMessageAts[i] = members[_communityId][wallets[i]].lastMessageAt;
-            messageCounts[i] = members[_communityId][wallets[i]].messageCount;
-            statuses[i] = members[_communityId][wallets[i]].status;
+            address wallet = memberList[_communityId][from + i];
+            Member memory member = members[_communityId][wallet];
+
+            wallets[i] = wallet;
+            serials[i] = member.serial;
+            names[i] = member.name;
+            intros[i] = member.intro;
+            joinedAts[i] = member.joinedAt;
+            lastMessageAts[i] = member.lastMessageAt;
+            messageCounts[i] = member.messageCount;
+            statuses[i] = member.status;
         }
     }
 }

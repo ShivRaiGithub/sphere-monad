@@ -38,6 +38,7 @@ export default function CommunityPage({ params }: CommunityPageProps) {
   const [thresholds, setThresholds] = useState<StageThresholds>(DEFAULT_THRESHOLDS);
   const [weights, setWeights] = useState<PointWeights>(DEFAULT_WEIGHTS);
   const [shuffledOrder, setShuffledOrder] = useState<number[] | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const contract = useSphereContract();
   const { members, totalMembers, isLoading } = useMembers(communityId, gridSize);
@@ -56,7 +57,6 @@ export default function CommunityPage({ params }: CommunityPageProps) {
   const handleShuffle = useCallback(() => {
     const totalTiles = gridSize * gridSize;
     const indices = Array.from({ length: totalTiles }, (_, i) => i);
-    // Fisher-Yates shuffle
     for (let i = indices.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [indices[i], indices[j]] = [indices[j], indices[i]];
@@ -66,21 +66,23 @@ export default function CommunityPage({ params }: CommunityPageProps) {
 
   return (
     <div className="min-h-screen flex flex-col bg-bg-primary font-body">
-      {/* Header */}
-      <header className="flex items-center justify-between px-6 py-3 border-b border-border/40 bg-bg-secondary/60 backdrop-blur-md z-40 shadow-sm">
-        <div className="flex items-center gap-6">
-          <Link href="/home" className="font-body text-sm font-medium text-text-secondary px-4 py-2 rounded-lg transition-all duration-300 hover:text-white hover:bg-bg-hover">
-            ← Back
-          </Link>
-          <div className="flex items-center gap-4 border-l border-border/50 pl-6">
-            <h1 className="font-pixel text-[0.8rem] text-white tracking-widest uppercase">{communityName}</h1>
-            <span className="text-sm font-body text-text-secondary bg-bg-card/50 px-3 py-1 rounded-full border border-border/50">
-              {totalMembers} member{totalMembers !== 1 ? 's' : ''}
-            </span>
+      {/* Header — hidden in fullscreen */}
+      {!isFullscreen && (
+        <header className="flex items-center justify-between px-6 py-3 border-b border-border/40 bg-bg-secondary/60 backdrop-blur-md z-40 shadow-sm">
+          <div className="flex items-center gap-6">
+            <Link href="/home" className="font-body text-sm font-medium text-text-secondary px-4 py-2 rounded-lg transition-all duration-300 hover:text-white hover:bg-bg-hover">
+              ← Back
+            </Link>
+            <div className="flex items-center gap-4 border-l border-border/50 pl-6">
+              <h1 className="font-pixel text-[0.8rem] text-white tracking-widest uppercase">{communityName}</h1>
+              <span className="text-sm font-body text-text-secondary bg-bg-card/50 px-3 py-1 rounded-full border border-border/50">
+                {totalMembers} member{totalMembers !== 1 ? 's' : ''}
+              </span>
+            </div>
           </div>
-        </div>
-        <ConnectButton showBalance={false} />
-      </header>
+          <ConnectButton showBalance={false} />
+        </header>
+      )}
 
       {/* 3-Panel Layout */}
       <div className="flex flex-1 overflow-hidden relative">
@@ -89,6 +91,7 @@ export default function CommunityPage({ params }: CommunityPageProps) {
           onGridSizeChange={(s) => { setGridSize(s); setShuffledOrder(null); }}
           thresholds={thresholds}
           onThresholdsChange={setThresholds}
+          hidden={isFullscreen}
         />
 
         <div className="flex-1 flex items-center justify-center p-6 overflow-auto relative z-0">
@@ -118,8 +121,20 @@ export default function CommunityPage({ params }: CommunityPageProps) {
           weights={weights}
           onWeightsChange={setWeights}
           onShuffle={handleShuffle}
+          onFullscreen={() => setIsFullscreen(!isFullscreen)}
+          hidden={isFullscreen}
         />
       </div>
+
+      {/* Fullscreen exit button — bottom left, faint */}
+      {isFullscreen && (
+        <button
+          onClick={() => setIsFullscreen(false)}
+          className="fixed bottom-6 left-6 z-50 px-5 py-3 bg-bg-panel/40 backdrop-blur-md border border-border/30 text-text-muted hover:text-white hover:bg-bg-panel/70 hover:border-accent/40 rounded-xl font-pixel text-[0.55rem] uppercase tracking-widest cursor-pointer transition-all duration-300 opacity-40 hover:opacity-100 shadow-lg"
+        >
+          ✕ Exit Fullscreen
+        </button>
+      )}
 
       {/* Member Detail Modal */}
       {selectedMember && (
