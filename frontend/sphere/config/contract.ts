@@ -171,10 +171,10 @@ export const SPHERE_ABI = [
 ] as const;
 
 export function getContractAddress(): `0x${string}` {
-  const addr = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
+  const addr = "0x17520ba1786c8e8a7e8c63eA1607d0250C971f3a";
   if (!addr) {
     // Default to a zero address for development
-    return '0x5FbDB2315678afecb367f032d93F642f64180aa3';
+    return '0x17520ba1786c8e8a7e8c63eA1607d0250C971f3a';
   }
   return addr as `0x${string}`;
 }
