@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+import Image from 'next/image';
 import { useAccount } from 'wagmi';
 import { useCommunities } from '@/hooks/useCommunities';
 import { useSphere } from '@/context/SphereContext';
-import CommunityCard from '@/components/CommunityCard';
-import Link from 'next/link';
+import Navbar from '@/components/discovery/Navbar';
+import PageHeader from '@/components/discovery/PageHeader';
+import CommunityGrid from '@/components/discovery/CommunityGrid';
 
 export default function HomePage() {
   const { address } = useAccount();
@@ -25,157 +26,132 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen relative flex flex-col bg-bg-primary font-body overflow-x-hidden">
-      {/* Background ambient layer */}
-      <div className="absolute inset-0 pointer-events-none z-0 fixed">
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,rgba(29,65,113,0.4)_0%,transparent_60%)]" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[radial-gradient(circle_at_bottom_left,rgba(74,222,128,0.05)_0%,transparent_70%)]" />
+    <div className="relative min-h-screen overflow-x-hidden text-slate-50">
+      <div className="absolute inset-0">
+        <Image src="/bg.png" alt="World map background" fill priority className="object-cover" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.25)_0%,rgba(30,58,138,0.35)_52%,rgba(22,163,74,0.22)_100%)]" />
+        <div className="absolute inset-0 backdrop-blur-[1.2px]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(34,211,238,0.23),transparent_38%),radial-gradient(circle_at_76%_22%,rgba(34,197,94,0.2),transparent_41%),radial-gradient(circle_at_50%_90%,rgba(2,132,199,0.26),transparent_58%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_50%,rgba(15,23,42,0.36)_100%)]" />
       </div>
 
-      {/* Header */}
-      <header className="flex justify-between items-center px-6 lg:px-10 py-5 border-b border-border/40 bg-bg-secondary/60 sticky top-0 z-40 backdrop-blur-xl shadow-sm">
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-full bg-accent-dim/30 border border-border-accent flex items-center justify-center shadow-[0_0_15px_rgba(74,222,128,0.15)] group-hover:bg-accent-dim transition-all duration-300">
-             <span className="relative w-4 h-4 bg-accent-glow rounded-full shadow-[0_0_12px_#22c55e]" />
-          </div>
-          <span className="font-pixel text-[1.2rem] text-text-primary tracking-widest group-hover:text-white transition-colors">Sphere</span>
-        </Link>
-        <ConnectButton showBalance={false} />
-      </header>
+      <div className="pointer-events-none absolute inset-0 z-1 overflow-hidden">
+        {Array.from({ length: 16 }, (_, i) => (
+          <span
+            key={`particle-${i}`}
+            className="absolute size-1 rounded-full bg-cyan-200/55 shadow-[0_0_14px_rgba(56,189,248,0.7)]"
+            style={{
+              left: `${8 + (i % 8) * 11}%`,
+              top: `${12 + (i % 5) * 17}%`,
+              opacity: i % 3 === 0 ? 0.6 : 0.35,
+              animation: `particleDrift ${10 + i * 0.7}s ease-in-out ${i * 0.35}s infinite`,
+            }}
+          />
+        ))}
+      </div>
 
-      {/* Main Content */}
-      <main className="flex-1 w-full max-w-[1400px] mx-auto p-6 lg:p-12 relative z-10 flex flex-col">
-        
-        {/* Title & Actions Row */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mb-12">
-          <div>
-            <h1 className="font-pixel text-3xl md:text-4xl text-white mb-4 uppercase tracking-widest drop-shadow-md">Discover Communities</h1>
-            <p className="text-base md:text-lg text-text-secondary max-w-xl leading-relaxed">Explore vibrant living spaces waiting to be populated. Each community is a unique environment.</p>
-          </div>
-          <button
-            onClick={() => { setShowCreate(true); resetWrite(); }}
-            className="font-pixel text-[0.7rem] uppercase tracking-widest px-8 py-4 bg-accent text-[#064e3b] border-2 border-accent-glow hover:bg-accent-glow cursor-pointer transition-all duration-300 rounded-xl hover:-translate-y-1 hover:shadow-[0_10px_25px_rgba(74,222,128,0.3)] shadow-lg active:translate-y-0"
-          >
-            + Lay Foundation
-          </button>
-        </div>
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 py-4 sm:px-8 lg:px-12">
+        <Navbar onCreateCommunity={() => { setShowCreate(true); resetWrite(); }} />
 
-        {/* Create Modal */}
-        {showCreate && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 opacity-100 transition-opacity duration-300">
-            <div className="absolute inset-0 bg-[#0f172a]/70 backdrop-blur-md" onClick={() => setShowCreate(false)} />
-            
-            <div 
-              className="relative w-full max-w-lg bg-bg-secondary border border-border/80 rounded-3xl p-8 shadow-2xl overflow-hidden" 
-              style={{ animation: 'slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}
+        <main className="flex-1 pb-10 pt-8 sm:pt-10">
+          <PageHeader
+            title="Discover Communities"
+            subtitle="Explore living spaces waiting to be populated"
+          />
+
+          <CommunityGrid
+            communities={communities}
+            isLoading={isLoading}
+            onCreateCommunity={() => { setShowCreate(true); resetWrite(); }}
+          />
+        </main>
+      </div>
+
+      {showCreate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+          <div className="absolute inset-0 bg-slate-900/55 backdrop-blur-sm" onClick={() => setShowCreate(false)} />
+          <div className="relative w-full max-w-lg rounded-3xl border border-white/20 bg-slate-900/65 p-7 shadow-[0_30px_80px_rgba(8,47,73,0.45)] backdrop-blur-xl sm:p-8">
+            <div className="absolute -right-10 -top-10 h-36 w-36 rounded-full bg-emerald-300/25 blur-2xl" />
+
+            <button
+              onClick={() => setShowCreate(false)}
+              className="absolute right-5 top-4 rounded-full px-2 py-1 text-sm text-slate-200 transition hover:bg-white/10 hover:text-white"
             >
-              {/* Modal decorative background */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-[radial-gradient(circle_at_top_right,rgba(74,222,128,0.15)_0%,transparent_70%)] pointer-events-none" />
+              Close
+            </button>
 
-              <button 
-                onClick={() => setShowCreate(false)}
-                className="absolute top-6 right-6 text-text-muted hover:text-white transition-colors font-body text-xl"
-              >
-                ✕
-              </button>
+            <h3 className="text-2xl font-semibold tracking-tight text-white">Establish New Land</h3>
+            <p className="mt-2 text-sm text-cyan-50/80">Create an empty environment and invite the first settlers.</p>
 
-              <h3 className="font-pixel text-xl text-accent-glow mb-2 uppercase tracking-widest">Establish New Land</h3>
-              <p className="text-text-secondary text-sm mb-8">Define the parameters of a new living environment.</p>
-              
-              <form onSubmit={handleCreate} className="flex flex-col gap-6 relative z-10">
-                <div className="flex flex-col gap-2">
-                  <label className="font-pixel text-[0.6rem] text-text-muted uppercase tracking-[0.15em]">Community Name</label>
-                  <input
-                    type="text"
-                    value={communityName}
-                    onChange={(e) => setCommunityName(e.target.value)}
-                    placeholder="e.g. Coral Reefs"
-                    className="w-full px-5 py-4 bg-bg-primary/80 border border-border rounded-xl text-text-primary text-base outline-none transition-all focus:border-accent shadow-inner focus:shadow-[0_0_15px_rgba(74,222,128,0.1)]"
-                    required
-                  />
-                </div>
-                
-                <div className="flex flex-col gap-2">
-                  <label className="font-pixel text-[0.6rem] text-text-muted uppercase tracking-[0.15em]">
-                    Creator Address <span className="text-text-secondary/50 lowercase font-body tracking-normal">(optional)</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={creatorAddress}
-                    onChange={(e) => setCreatorAddress(e.target.value)}
-                    placeholder={address ? `${address.slice(0, 10)}...` : '0x...'}
-                    className="w-full px-5 py-4 bg-bg-primary/50 border border-border/50 rounded-xl text-text-secondary font-mono text-sm outline-none transition-all focus:border-accent shadow-inner placeholder:text-text-muted/50"
-                  />
-                </div>
-                
-                <div className="pt-4 flex flex-col gap-4">
-                  <button
-                    type="submit"
-                    disabled={isPending || isConfirming}
-                    className="w-full px-6 py-4 bg-gradient-to-r from-accent to-accent-glow text-[#064e3b] border-none rounded-xl font-pixel text-[0.7rem] uppercase tracking-widest cursor-pointer transition-all duration-300 hover:shadow-[0_10px_30px_rgba(74,222,128,0.4)] hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                  >
-                    {isPending ? 'Confirming Transaction...' : isConfirming ? 'Laying Foundation...' : 'Create Foundation'}
-                  </button>
-                  
-                  {isSuccess && (
-                    <div className="p-4 bg-accent-dim/30 border border-border-accent rounded-xl flex items-center justify-between animate-pulse">
-                      <p className="text-sm font-pixel text-accent-glow tracking-widest uppercase">
-                        New land established!
-                      </p>
-                      <button onClick={() => { refetch(); resetWrite(); setShowCreate(false); }} className="text-white hover:text-accent-glow transition-colors border-none bg-transparent cursor-pointer font-pixel text-[0.6rem] uppercase">
-                        View Now
-                      </button>
-                    </div>
-                  )}
-                  
-                  {writeError && (
-                    <p className="text-sm font-mono text-red-200 bg-red-900/40 px-4 py-3 rounded-xl border border-red-500/30 leading-relaxed overflow-x-auto">
-                      {writeError.message.slice(0, 120)}...
-                    </p>
-                  )}
-                </div>
-                
-                <p className="text-xs font-mono text-text-muted mt-2 text-center opacity-70">
-                  Note: Limited to protocol owner.
-                </p>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* Community Grid */}
-        {isLoading ? (
-          <div className="flex-1 flex flex-col items-center justify-center gap-6 py-32 text-text-secondary">
-            <div className="relative w-16 h-16">
-               <div className="absolute inset-0 border-4 border-border/40 rounded-full" />
-               <div className="absolute inset-0 border-4 border-transparent border-t-accent rounded-full animate-spin" />
-            </div>
-            <p className="font-pixel text-[0.7rem] tracking-widest uppercase text-accent animate-pulse">Surveying Landscapes...</p>
-          </div>
-        ) : communities.length === 0 ? (
-          <div className="flex-1 flex items-center justify-center py-24 px-6 text-text-muted">
-             <div className="max-w-xl text-center bg-bg-card/40 backdrop-blur-sm border border-border/40 rounded-3xl p-12 shadow-xl">
-              <div className="w-32 h-32 mx-auto mb-8 opacity-40 filter grayscale drop-shadow-lg" style={{ animation: 'float 6s infinite ease-in-out' }}>
-                 <img src="/nature/grassTiles.png" alt="Empty land" className="w-full h-full object-contain pixel-img" />
+            <form onSubmit={handleCreate} className="mt-7 space-y-5">
+              <div className="space-y-2">
+                <label className="text-xs font-medium uppercase tracking-[0.14em] text-cyan-100/85">Community Name</label>
+                <input
+                  type="text"
+                  value={communityName}
+                  onChange={(e) => setCommunityName(e.target.value)}
+                  placeholder="ex. Azure Valley"
+                  className="w-full rounded-xl border border-white/25 bg-slate-800/70 px-4 py-3 text-slate-100 outline-none transition focus:border-emerald-300/80 focus:shadow-[0_0_0_3px_rgba(34,197,94,0.2)]"
+                  required
+                />
               </div>
-              <h3 className="font-pixel text-2xl text-white mb-4 tracking-widest uppercase">Untouched Wilderness</h3>
-              <p className="text-text-secondary text-lg mb-8 max-w-md mx-auto leading-relaxed">No communities exist yet. Be the first to lay the foundation and create a new living environment.</p>
+
+              <div className="space-y-2">
+                <label className="text-xs font-medium uppercase tracking-[0.14em] text-cyan-100/85">Creator Address (Optional)</label>
+                <input
+                  type="text"
+                  value={creatorAddress}
+                  onChange={(e) => setCreatorAddress(e.target.value)}
+                  placeholder={address ? `${address.slice(0, 8)}...` : '0x...'}
+                  className="w-full rounded-xl border border-white/25 bg-slate-800/70 px-4 py-3 font-mono text-sm text-slate-100 outline-none transition focus:border-cyan-300/80 focus:shadow-[0_0_0_3px_rgba(56,189,248,0.2)]"
+                />
+              </div>
+
               <button
-                onClick={() => setShowCreate(true)}
-                className="font-pixel text-[0.65rem] uppercase tracking-widest px-8 py-3 bg-bg-panel text-white border border-border hover:border-accent hover:text-accent rounded-lg cursor-pointer transition-all duration-300 shadow-md hover:shadow-accent/10"
+                type="submit"
+                disabled={isPending || isConfirming}
+                className="w-full rounded-xl border border-emerald-300/70 bg-emerald-400/85 px-5 py-3 text-sm font-semibold text-emerald-950 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_15px_34px_rgba(74,222,128,0.45)] disabled:cursor-not-allowed disabled:opacity-55"
               >
-                Start Surveying
+                {isPending ? 'Confirm Wallet Transaction...' : isConfirming ? 'Creating Community...' : 'Create Community'}
               </button>
-            </div>
+
+              {isSuccess && (
+                <div className="rounded-xl border border-emerald-300/55 bg-emerald-300/20 p-3 text-sm text-emerald-100">
+                  Community created successfully.
+                  <button
+                    onClick={() => {
+                      refetch();
+                      resetWrite();
+                      setShowCreate(false);
+                    }}
+                    className="ml-2 font-semibold text-white underline decoration-emerald-200 underline-offset-4"
+                  >
+                    Refresh map
+                  </button>
+                </div>
+              )}
+
+              {writeError && (
+                <p className="rounded-xl border border-rose-300/45 bg-rose-950/40 px-3 py-2 font-mono text-xs text-rose-100/95">
+                  {writeError.message.slice(0, 170)}...
+                </p>
+              )}
+            </form>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 lg:gap-10 pb-20">
-            {communities.map((c) => (
-              <CommunityCard key={c.id.toString()} community={c} />
-            ))}
-          </div>
-        )}
-      </main>
+        </div>
+      )}
+
+      <style jsx>{`
+        @keyframes particleDrift {
+          0%,
+          100% {
+            transform: translateY(0px) translateX(0px);
+          }
+          50% {
+            transform: translateY(-10px) translateX(6px);
+          }
+        }
+      `}</style>
     </div>
   );
 }
