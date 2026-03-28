@@ -29,9 +29,10 @@ interface TileProps {
   member: Member | null;
   index: number;
   onHover: (member: Member | null, rect: DOMRect | null) => void;
+  onClick?: (member: Member) => void;
 }
 
-export default function Tile({ member, index, onHover }: TileProps) {
+export default function Tile({ member, index, onHover, onClick }: TileProps) {
   const stage: GrowthStage = member ? getGrowthStage(member.joinedAt) : 'grass';
   const imageSrc = STAGE_IMAGES[stage];
 
@@ -45,6 +46,9 @@ export default function Tile({ member, index, onHover }: TileProps) {
         }
       }}
       onMouseLeave={() => onHover(null, null)}
+      onClick={() => {
+        if (member && onClick) onClick(member);
+      }}
     >
       {/* The tile image — rendered at full size, no background/border/rotation */}
       <img

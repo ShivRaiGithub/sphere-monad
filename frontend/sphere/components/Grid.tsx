@@ -13,9 +13,10 @@ const TILE_HEIGHT = 55;
 interface GridProps {
   members: Member[];
   gridSize: number;
+  onMemberClick?: (member: Member) => void;
 }
 
-export default function Grid({ members, gridSize }: GridProps) {
+export default function Grid({ members, gridSize, onMemberClick }: GridProps) {
   const [hoveredMember, setHoveredMember] = useState<Member | null>(null);
   const [hoverPosition, setHoverPosition] = useState<{ x: number; y: number } | null>(null);
 
@@ -85,6 +86,7 @@ export default function Grid({ members, gridSize }: GridProps) {
             member={tile.member}
             index={tile.index}
             onHover={handleHover}
+            onClick={onMemberClick}
           />
         </div>
       ))}

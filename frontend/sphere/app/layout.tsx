@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
-import { Press_Start_2P, Inter } from 'next/font/google';
+import { VT323, Inter } from 'next/font/google';
 import './globals.css';
 import Web3Provider from '@/providers/Web3Provider';
 import { SphereProvider } from '@/context/SphereContext';
 
-const pixelFont = Press_Start_2P({
+const pixelFont = VT323({
   weight: '400',
   subsets: ['latin'],
   variable: '--font-pixel',

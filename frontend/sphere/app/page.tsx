@@ -4,6 +4,8 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
+import HeroEnvironment from '@/components/HeroEnvironment';
+import Link from 'next/link';
 
 export default function LandingPage() {
   const { isConnected } = useAccount();
@@ -16,73 +18,51 @@ export default function LandingPage() {
   }, [isConnected, router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative bg-bg-primary overflow-hidden">
-      {/* Radial gradient overlay */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
+    <div className="min-h-screen flex relative overflow-hidden text-text-primary">
+      {/* Full screen background environment */}
+      <HeroEnvironment />
 
-      {/* Floating particles */}
-      <div className="absolute inset-0 pointer-events-none">
-        {Array.from({ length: 15 }).map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 bg-accent rounded-full opacity-0"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animation: `float ${3 + Math.random() * 4}s ${Math.random() * 5}s infinite ease-in-out`,
-            }}
-          />
-        ))}
-      </div>
+      {/* Content wrapper with pointer events */}
+      <div className="relative z-40 flex-1 flex flex-col w-full max-w-[1400px] mx-auto px-6 lg:px-12 pointer-events-none">
+        
+        {/* Header/Nav space if needed */}
+        <div className="h-24" />
 
-      <main className="text-center z-10 px-6 max-w-[700px] w-full">
-        {/* Tree icons */}
-        <div className="flex items-end justify-center gap-6 mb-6">
-          <img src="/forest/sprout.png" alt="sprout" className="w-12 h-12 pixel-img drop-shadow-[0_0_8px_rgba(16,185,129,0.3)]" style={{ animation: 'tree-bob 3s ease-in-out infinite' }} />
-          <img src="/forest/mtree.png" alt="tree" className="w-16 h-16 pixel-img drop-shadow-[0_0_8px_rgba(16,185,129,0.3)]" style={{ animation: 'tree-bob 3s 0.5s ease-in-out infinite' }} />
-          <img src="/forest/etree.png" alt="elder" className="w-12 h-12 pixel-img drop-shadow-[0_0_8px_rgba(16,185,129,0.3)]" style={{ animation: 'tree-bob 3s 1s ease-in-out infinite' }} />
-        </div>
-
-        {/* Title */}
-        <h1 className="font-pixel text-4xl tracking-wider mb-3">
-          <span className="bg-gradient-to-br from-accent via-accent-glow to-emerald-200 bg-clip-text text-transparent">
+        <main className="flex-1 flex flex-col justify-center pointer-events-auto max-w-xl pb-32">
+          <h1 className="font-pixel text-6xl md:text-7xl tracking-widest mb-6 drop-shadow-md text-white">
             Sphere
-          </span>
-        </h1>
+          </h1>
+          
+          <h2 className="font-pixel text-[1.2rem] text-accent-glow mb-8 leading-relaxed uppercase tracking-widest drop-shadow">
+            Grow your presence on-chain
+          </h2>
 
-        <p className="font-pixel text-[0.65rem] text-accent uppercase tracking-[0.2em] mb-4">
-          Interactive on-chain community platform
-        </p>
+          <div className="text-text-secondary text-lg leading-relaxed mb-12 space-y-6 backdrop-blur-sm bg-bg-card/40 p-10 rounded-3xl border border-border/50 shadow-xl shadow-bg-primary/20">
+            <p className="text-text-primary text-xl">
+              Sphere is a persistent, on-chain social layer where communities take shape as living environments.
+            </p>
+            <p className="text-blue-100/90 text-base leading-relaxed">
+              Each member is represented by a tree that grows over time through participation. 
+              The longer you stay, the more your presence evolves.
+            </p>
+            <p className="font-bold text-white pt-4 font-pixel text-sm tracking-widest uppercase opacity-90">
+              Communities are not lists — they are landscapes.
+            </p>
+          </div>
 
-        <p className="text-text-secondary text-base leading-7 max-w-md mx-auto mb-6">
-          Join communities. Plant your tree. Grow together.
-          <br />
-          Each member is a tree that grows over time on an isometric grid.
-        </p>
-
-        {/* Connect */}
-        <div className="mb-10">
-          <ConnectButton label="🌱 Connect Wallet" showBalance={false} />
-        </div>
-
-        {/* Feature cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {[
-            { icon: '🌳', title: 'Grow Together', desc: 'Your tree grows as you participate in the community' },
-            { icon: '🗺️', title: 'Isometric Grid', desc: 'Visual community map with pixel-art trees' },
-            { icon: '⛓️', title: 'On-Chain', desc: 'All data lives on the blockchain permanently' },
-          ].map((f) => (
-            <div
-              key={f.title}
-              className="bg-bg-card border border-border rounded-xl p-5 text-center transition-all duration-300 hover:border-border-accent hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(16,185,129,0.08)]"
-            >
-              <span className="text-2xl block mb-2">{f.icon}</span>
-              <h3 className="font-pixel text-[0.55rem] text-text-primary mb-2">{f.title}</h3>
-              <p className="text-sm text-text-secondary leading-snug">{f.desc}</p>
+          <div className="flex flex-wrap items-center gap-6">
+            <div className="scale-105 origin-left transition-transform duration-300 hover:scale-[1.08] drop-shadow-xl shadow-accent/20">
+              <ConnectButton label="Connect Wallet" showBalance={false} />
             </div>
-          ))}
-        </div>
-      </main>
+            <Link 
+              href="/home" 
+              className="font-pixel text-[0.75rem] uppercase tracking-widest text-text-primary hover:text-white transition-all duration-300 px-8 py-4 border border-border/80 hover:border-accent-glow/60 rounded-xl bg-bg-panel/60 backdrop-blur-md hover:bg-bg-hover shadow-lg hover:shadow-accent/10"
+            >
+              Explore Communities
+            </Link>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
