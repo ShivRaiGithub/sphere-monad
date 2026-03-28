@@ -1,10 +1,13 @@
 'use client';
 
 import { Member } from '@/context/SphereContext';
+import { getGrowthStage, computePoints, type PointWeights, type StageThresholds } from './Tile';
 
 interface HoverCardProps {
   member: Member | null;
   position: { x: number; y: number } | null;
+  weights: PointWeights;
+  thresholds: StageThresholds;
 }
 
 function formatDate(timestamp: bigint): string {
@@ -20,8 +23,11 @@ function truncateAddress(addr: string): string {
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 }
 
-export default function HoverCard({ member, position }: HoverCardProps) {
+export default function HoverCard({ member, position, weights, thresholds }: HoverCardProps) {
   if (!member || !position) return null;
+
+  const stage = getGrowthStage(member, weights, thresholds);
+  const pts = computePoints(member, weights);
 
   return (
     <div
@@ -43,8 +49,16 @@ export default function HoverCard({ member, position }: HoverCardProps) {
         </div>
         
         {member.intro && (
-          <p className="text-[0.85rem] text-text-secondary mb-5 leading-relaxed italic pr-2">"{member.intro}"</p>
+          <p className="text-[0.85rem] text-text-secondary mb-4 leading-relaxed italic pr-2">&ldquo;{member.intro}&rdquo;</p>
         )}
+        
+        {/* Points & Stage */}
+        <div className="flex items-center gap-3 mb-4 p-2 bg-accent/10 rounded-lg border border-accent/20">
+          <span className="font-pixel text-[0.7rem] text-accent-glow">{pts} pts</span>
+          <span className="text-[0.65rem] text-text-muted">→</span>
+          <span className="font-pixel text-[0.7rem] text-text-primary uppercase">{stage}</span>
+          <span className="text-[0.65rem] text-text-muted ml-auto">{Number(member.messageCount)} msgs</span>
+        </div>
         
         <div className="flex flex-col gap-2 pt-1 text-sm bg-bg-panel/20 p-3 rounded-xl border border-border/30 shadow-inner">
           <div className="flex justify-between items-center">

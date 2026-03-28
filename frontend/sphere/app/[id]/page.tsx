@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, use } from 'react';
+import { useState, useCallback, use } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useMembers } from '@/hooks/useMembers';
 import Grid from '@/components/Grid';
@@ -10,7 +10,8 @@ import Link from 'next/link';
 import { useReadContract } from 'wagmi';
 import { useSphereContract } from '@/hooks/useSphereContract';
 import type { Member } from '@/context/SphereContext';
-import { getGrowthStage } from '@/components/Tile';
+import { computePoints, getGrowthStage, DEFAULT_THRESHOLDS, DEFAULT_WEIGHTS } from '@/components/Tile';
+import type { StageThresholds, PointWeights } from '@/components/Tile';
 
 interface CommunityPageProps {
   params: Promise<{ id: string }>;
@@ -34,6 +35,9 @@ export default function CommunityPage({ params }: CommunityPageProps) {
   const communityId = BigInt(id);
   const [gridSize, setGridSize] = useState(3);
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
+  const [thresholds, setThresholds] = useState<StageThresholds>(DEFAULT_THRESHOLDS);
+  const [weights, setWeights] = useState<PointWeights>(DEFAULT_WEIGHTS);
+  const [shuffledOrder, setShuffledOrder] = useState<number[] | null>(null);
 
   const contract = useSphereContract();
   const { members, totalMembers, isLoading } = useMembers(communityId, gridSize);
@@ -49,13 +53,24 @@ export default function CommunityPage({ params }: CommunityPageProps) {
       ? (communityData[1] as string)
       : `Community #${id}`;
 
+  const handleShuffle = useCallback(() => {
+    const totalTiles = gridSize * gridSize;
+    const indices = Array.from({ length: totalTiles }, (_, i) => i);
+    // Fisher-Yates shuffle
+    for (let i = indices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    setShuffledOrder(indices);
+  }, [gridSize]);
+
   return (
     <div className="min-h-screen flex flex-col bg-bg-primary font-body">
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-3 border-b border-border/40 bg-bg-secondary/60 backdrop-blur-md z-40 shadow-sm">
         <div className="flex items-center gap-6">
           <Link href="/home" className="font-body text-sm font-medium text-text-secondary px-4 py-2 rounded-lg transition-all duration-300 hover:text-white hover:bg-bg-hover">
-            ← Back to Home
+            ← Back
           </Link>
           <div className="flex items-center gap-4 border-l border-border/50 pl-6">
             <h1 className="font-pixel text-[0.8rem] text-white tracking-widest uppercase">{communityName}</h1>
@@ -69,7 +84,12 @@ export default function CommunityPage({ params }: CommunityPageProps) {
 
       {/* 3-Panel Layout */}
       <div className="flex flex-1 overflow-hidden relative">
-        <LeftPanel gridSize={gridSize} onGridSizeChange={setGridSize} />
+        <LeftPanel
+          gridSize={gridSize}
+          onGridSizeChange={(s) => { setGridSize(s); setShuffledOrder(null); }}
+          thresholds={thresholds}
+          onThresholdsChange={setThresholds}
+        />
 
         <div className="flex-1 flex items-center justify-center p-6 overflow-auto relative z-0">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(74,222,128,0.03)_0%,transparent_60%)] pointer-events-none" />
@@ -81,12 +101,24 @@ export default function CommunityPage({ params }: CommunityPageProps) {
             </div>
           ) : (
             <div className="z-10">
-              <Grid members={members} gridSize={gridSize} onMemberClick={setSelectedMember} />
+              <Grid
+                members={members}
+                gridSize={gridSize}
+                onMemberClick={setSelectedMember}
+                weights={weights}
+                thresholds={thresholds}
+                shuffledOrder={shuffledOrder}
+              />
             </div>
           )}
         </div>
 
-        <RightPanel communityId={communityId} />
+        <RightPanel
+          communityId={communityId}
+          weights={weights}
+          onWeightsChange={setWeights}
+          onShuffle={handleShuffle}
+        />
       </div>
 
       {/* Member Detail Modal */}
@@ -103,7 +135,7 @@ export default function CommunityPage({ params }: CommunityPageProps) {
           >
             <button 
               onClick={() => setSelectedMember(null)}
-              className="absolute top-6 right-6 text-text-muted hover:text-white transition-colors text-xl font-body"
+              className="absolute top-6 right-6 text-text-muted hover:text-white transition-colors text-xl font-body cursor-pointer"
             >
               ✕
             </button>
@@ -119,10 +151,18 @@ export default function CommunityPage({ params }: CommunityPageProps) {
                  </span>
                </div>
             </div>
+
+            {/* Points Bar */}
+            <div className="flex items-center gap-3 mb-6 p-3 bg-accent/10 rounded-xl border border-accent/20">
+              <span className="font-pixel text-[0.8rem] text-accent-glow">{computePoints(selectedMember, weights)} pts</span>
+              <span className="text-text-muted">→</span>
+              <span className="font-pixel text-[0.8rem] text-text-primary uppercase">{getGrowthStage(selectedMember, weights, thresholds)}</span>
+              <span className="text-[0.7rem] text-text-muted ml-auto">{Number(selectedMember.messageCount)} msgs</span>
+            </div>
             
             {selectedMember.intro ? (
               <div className="mb-6 p-4 bg-bg-card/40 rounded-xl border border-border/40">
-                <p className="text-sm text-text-secondary leading-relaxed font-body italic">"{selectedMember.intro}"</p>
+                <p className="text-sm text-text-secondary leading-relaxed font-body italic">&ldquo;{selectedMember.intro}&rdquo;</p>
               </div>
             ) : (
               <div className="mb-6 p-4 bg-bg-card/20 rounded-xl border border-border/20">
@@ -132,11 +172,11 @@ export default function CommunityPage({ params }: CommunityPageProps) {
             
             <div className="flex flex-col gap-1 font-body text-sm">
               <div className="flex justify-between items-center py-3 border-b border-border/30">
-                <span className="text-text-muted font-medium">Wallet Address</span>
+                <span className="text-text-muted font-medium">Wallet</span>
                 <span className="font-mono text-text-primary bg-bg-panel/50 px-2 py-1 rounded-md">{truncateAddress(selectedMember.wallet)}</span>
               </div>
               <div className="flex justify-between items-center py-3 border-b border-border/30">
-                <span className="text-text-muted font-medium">Joined Date</span>
+                <span className="text-text-muted font-medium">Joined</span>
                 <span className="font-mono text-text-primary">{formatDate(selectedMember.joinedAt)}</span>
               </div>
               <div className="flex justify-between items-center py-3">

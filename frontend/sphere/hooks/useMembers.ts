@@ -39,12 +39,13 @@ export function useMembers(communityId: bigint, gridSize: number = 3) {
 
   const members: Member[] = useMemo(() => {
     if (!membersData) return [];
-    const [wallets, serials, names, intros, joinedAts, lastMessageAts, statuses] =
+    const [wallets, serials, names, intros, joinedAts, lastMessageAts, messageCounts, statuses] =
       membersData as [
         `0x${string}`[],
         bigint[],
         string[],
         string[],
+        bigint[],
         bigint[],
         bigint[],
         number[],
@@ -57,6 +58,7 @@ export function useMembers(communityId: bigint, gridSize: number = 3) {
       intro: intros[i],
       joinedAt: joinedAts[i],
       lastMessageAt: lastMessageAts[i],
+      messageCount: messageCounts[i],
       status: statuses[i],
     }));
   }, [membersData]);

@@ -4,12 +4,16 @@ import { useState, useEffect } from 'react';
 import { useAccount, useReadContract } from 'wagmi';
 import { useSphere } from '@/context/SphereContext';
 import { useSphereContract } from '@/hooks/useSphereContract';
+import type { PointWeights } from './Tile';
 
 interface RightPanelProps {
   communityId: bigint;
+  weights: PointWeights;
+  onWeightsChange: (w: PointWeights) => void;
+  onShuffle: () => void;
 }
 
-export default function RightPanel({ communityId }: RightPanelProps) {
+export default function RightPanel({ communityId, weights, onWeightsChange, onShuffle }: RightPanelProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [name, setName] = useState('');
   const [intro, setIntro] = useState('');
@@ -65,13 +69,67 @@ export default function RightPanel({ communityId }: RightPanelProps) {
 
       {!collapsed && (
         <div className="p-6 overflow-y-auto flex-1 font-body">
+
+          {/* Point Weights */}
+          <div className="mb-6 p-4 bg-bg-card/40 rounded-xl border border-border/30">
+            <h4 className="font-pixel text-[0.65rem] text-accent mb-4 uppercase tracking-widest">Point Weights</h4>
+            <p className="text-[0.6rem] text-text-muted mb-4">Defines how points are calculated:</p>
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-3">
+                <span className="text-sm">⏰</span>
+                <div className="flex-1">
+                  <label className="block text-[0.6rem] text-text-secondary mb-1">Per Hour Age</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    step={0.1}
+                    value={weights.agePerHour}
+                    onChange={(e) => onWeightsChange({ ...weights, agePerHour: Math.max(0, Number(e.target.value)) })}
+                    className="w-full px-3 py-2 bg-bg-primary/60 border border-border/50 rounded-lg text-text-primary text-xs outline-none transition-colors focus:border-accent font-mono"
+                  />
+                </div>
+                <span className="text-[0.55rem] text-text-muted mt-5">pts/hr</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-sm">💬</span>
+                <div className="flex-1">
+                  <label className="block text-[0.6rem] text-text-secondary mb-1">Per Message</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    step={1}
+                    value={weights.perMessage}
+                    onChange={(e) => onWeightsChange({ ...weights, perMessage: Math.max(0, Number(e.target.value)) })}
+                    className="w-full px-3 py-2 bg-bg-primary/60 border border-border/50 rounded-lg text-text-primary text-xs outline-none transition-colors focus:border-accent font-mono"
+                  />
+                </div>
+                <span className="text-[0.55rem] text-text-muted mt-5">pts/msg</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Shuffle */}
+          <div className="mb-6">
+            <button
+              onClick={onShuffle}
+              className="w-full py-3 bg-bg-card/60 border border-border/50 hover:border-accent/40 text-text-primary rounded-xl font-pixel text-[0.6rem] tracking-widest uppercase cursor-pointer transition-all duration-300 hover:bg-bg-hover hover:text-accent-glow hover:shadow-lg flex items-center justify-center gap-2"
+            >
+              🔀 Shuffle Tiles
+            </button>
+          </div>
+
+          <hr className="border-border/30 mb-6" />
+
+          {/* Interaction Forms */}
           {!address ? (
-            <div className="text-center py-10 px-4 text-text-muted flex flex-col items-center justify-center h-full">
+            <div className="text-center py-10 px-4 text-text-muted flex flex-col items-center justify-center">
               <span className="text-2xl block mb-4 opacity-50 filter grayscale">🔌</span>
-              <p className="leading-relaxed text-sm">Connect your wallet to plant your tree or interact with members.</p>
+              <p className="leading-relaxed text-sm">Connect your wallet to interact.</p>
             </div>
           ) : !isMember ? (
-            <div className="animate-slideDown">
+            <div>
               <h3 className="font-pixel text-[0.8rem] text-accent-glow mb-6 uppercase tracking-widest border-b border-border/40 pb-3">Join Community</h3>
               <form onSubmit={handleJoin} className="flex flex-col gap-5">
                 <div className="flex flex-col gap-2">
@@ -91,53 +149,47 @@ export default function RightPanel({ communityId }: RightPanelProps) {
                     value={intro}
                     onChange={(e) => setIntro(e.target.value)}
                     placeholder="Tell us about yourself..."
-                    className="w-full px-4 py-3 bg-bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl text-text-primary text-sm outline-none transition-all duration-300 focus:border-accent focus:shadow-[0_0_15px_rgba(74,222,128,0.1)] shadow-inner resize-y min-h-[100px]"
+                    className="w-full px-4 py-3 bg-bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl text-text-primary text-sm outline-none transition-all duration-300 focus:border-accent focus:shadow-[0_0_15px_rgba(74,222,128,0.1)] shadow-inner resize-y min-h-[80px]"
                     rows={3}
                   />
                 </div>
-                <div className="pt-2">
-                  <button
-                    type="submit"
-                    disabled={isPending || isConfirming}
-                    className="w-full px-5 py-3.5 bg-gradient-to-r from-accent to-accent-glow text-[#064e3b] border-none rounded-xl font-pixel text-[0.65rem] tracking-widest uppercase cursor-pointer transition-all duration-300 hover:shadow-[0_8px_20px_rgba(74,222,128,0.3)] hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                  >
-                    {isPending ? 'Confirming...' : isConfirming ? 'Waiting...' : '🌱 Form Roots'}
-                  </button>
-                </div>
-                {isSuccess && <p className="text-sm text-accent-glow text-center bg-accent/10 py-3 rounded-xl border border-accent/20 animate-pulse">Welcome to the forest! 🎉</p>}
+                <button
+                  type="submit"
+                  disabled={isPending || isConfirming}
+                  className="w-full px-5 py-3.5 bg-gradient-to-r from-accent to-accent-glow text-[#064e3b] border-none rounded-xl font-pixel text-[0.65rem] tracking-widest uppercase cursor-pointer transition-all duration-300 hover:shadow-[0_8px_20px_rgba(74,222,128,0.3)] hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                >
+                  {isPending ? 'Confirming...' : isConfirming ? 'Waiting...' : '🌱 Form Roots'}
+                </button>
+                {isSuccess && <p className="text-sm text-accent-glow text-center bg-accent/10 py-3 rounded-xl border border-accent/20 animate-pulse">Welcome! 🎉</p>}
                 {writeError && !isCooldownError && (
                   <p className="text-xs font-mono text-red-200 bg-red-900/40 px-4 py-3 rounded-xl border border-red-500/30 leading-relaxed overflow-x-auto">{writeError.message.slice(0, 100)}</p>
                 )}
               </form>
             </div>
           ) : (
-            <div className="animate-slideDown">
+            <div>
               <h3 className="font-pixel text-[0.8rem] text-accent-glow mb-6 uppercase tracking-widest border-b border-border/40 pb-3">Send Message</h3>
               <form onSubmit={handleSendMessage} className="flex flex-col gap-5">
-                <div className="flex flex-col gap-2">
-                  <textarea
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Broadcast to the community..."
-                    className="w-full px-4 py-3 bg-bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl text-text-primary text-sm outline-none transition-all duration-300 focus:border-accent focus:shadow-[0_0_15px_rgba(74,222,128,0.1)] shadow-inner resize-y min-h-[120px]"
-                    rows={4}
-                    required
-                  />
-                </div>
+                <textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Broadcast to the community..."
+                  className="w-full px-4 py-3 bg-bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl text-text-primary text-sm outline-none transition-all duration-300 focus:border-accent focus:shadow-[0_0_15px_rgba(74,222,128,0.1)] shadow-inner resize-y min-h-[100px]"
+                  rows={4}
+                  required
+                />
                 <button
                   type="submit"
                   disabled={isPending || isConfirming}
-                  className="w-full px-5 py-3.5 bg-bg-card border border-border/80 hover:border-accent/50 text-text-primary rounded-xl font-pixel text-[0.65rem] tracking-widest uppercase cursor-pointer transition-all duration-300 hover:bg-bg-hover disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg focus:shadow-[0_0_15px_rgba(74,222,128,0.2)]"
+                  className="w-full px-5 py-3.5 bg-bg-card border border-border/80 hover:border-accent/50 text-text-primary rounded-xl font-pixel text-[0.65rem] tracking-widest uppercase cursor-pointer transition-all duration-300 hover:bg-bg-hover disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg"
                 >
                   {isPending ? 'Confirming...' : isConfirming ? 'Sending...' : '💬 Send Broadcast'}
                 </button>
-                
-                {isSuccess && <p className="text-sm text-accent-glow text-center bg-accent/10 py-3 rounded-xl border border-accent/20 animate-pulse">Message broadcasted! 📨</p>}
-                
+                {isSuccess && <p className="text-sm text-accent-glow text-center bg-accent/10 py-3 rounded-xl border border-accent/20 animate-pulse">Sent! 📨</p>}
                 {isCooldownError && (
                   <div className="flex items-start gap-3 bg-amber-500/10 border border-amber-500/30 p-4 rounded-xl text-amber-200 text-sm shadow-inner">
                     <span className="text-xl">⏳</span>
-                    <p className="leading-relaxed font-mono text-xs mt-1">Transmission cooling down. You must wait 12 hours between broadcasts.</p>
+                    <p className="leading-relaxed font-mono text-xs mt-1">Wait 12 hours between broadcasts.</p>
                   </div>
                 )}
                 {writeError && !isCooldownError && (

@@ -4,7 +4,7 @@ import { Member } from '@/context/SphereContext';
 
 export type GrowthStage = 'grass' | 'sprout' | 'stree' | 'mtree' | 'ltree' | 'etree';
 
-const STAGE_IMAGES: Record<GrowthStage, string> = {
+export const STAGE_IMAGES: Record<GrowthStage, string> = {
   grass: '/forest/grass.png',
   sprout: '/forest/sprout.png',
   stree: '/forest/stree.png',
@@ -13,16 +13,48 @@ const STAGE_IMAGES: Record<GrowthStage, string> = {
   etree: '/forest/etree.png',
 };
 
-export function getGrowthStage(joinedAt: bigint): GrowthStage {
-  const now = BigInt(Math.floor(Date.now() / 1000));
-  const elapsed = now - joinedAt;
-  const oneDay = BigInt(86400);
+export interface StageThresholds {
+  sprout: number;
+  stree: number;
+  mtree: number;
+  ltree: number;
+  etree: number;
+}
 
-  if (elapsed < oneDay) return 'sprout';
-  if (elapsed < oneDay * BigInt(3)) return 'stree';
-  if (elapsed < oneDay * BigInt(7)) return 'mtree';
-  if (elapsed < oneDay * BigInt(14)) return 'ltree';
-  return 'etree';
+export interface PointWeights {
+  agePerHour: number;      // points per hour of membership
+  perMessage: number;      // points per messageCount
+}
+
+export const DEFAULT_THRESHOLDS: StageThresholds = {
+  sprout: 0,
+  stree: 10,
+  mtree: 40,
+  ltree: 70,
+  etree: 100,
+};
+
+export const DEFAULT_WEIGHTS: PointWeights = {
+  agePerHour: 1,
+  perMessage: 5,
+};
+
+export function computePoints(member: Member, weights: PointWeights): number {
+  const now = Math.floor(Date.now() / 1000);
+  const ageHours = (now - Number(member.joinedAt)) / 3600;
+  const agePoints = ageHours * weights.agePerHour;
+  const msgPoints = Number(member.messageCount) * weights.perMessage;
+  return Math.floor(agePoints + msgPoints);
+}
+
+export function getGrowthStage(member: Member, weights: PointWeights, thresholds: StageThresholds): GrowthStage {
+  const pts = computePoints(member, weights);
+  if (pts >= thresholds.etree) return 'etree';
+  if (pts >= thresholds.ltree) return 'ltree';
+  if (pts >= thresholds.mtree) return 'mtree';
+  if (pts >= thresholds.stree) return 'stree';
+  if (pts >= thresholds.sprout) return 'sprout';
+  return 'grass';
 }
 
 interface TileProps {
@@ -30,10 +62,12 @@ interface TileProps {
   index: number;
   onHover: (member: Member | null, rect: DOMRect | null) => void;
   onClick?: (member: Member) => void;
+  weights: PointWeights;
+  thresholds: StageThresholds;
 }
 
-export default function Tile({ member, index, onHover, onClick }: TileProps) {
-  const stage: GrowthStage = member ? getGrowthStage(member.joinedAt) : 'grass';
+export default function Tile({ member, index, onHover, onClick, weights, thresholds }: TileProps) {
+  const stage: GrowthStage = member ? getGrowthStage(member, weights, thresholds) : 'grass';
   const imageSrc = STAGE_IMAGES[stage];
 
   return (
@@ -50,14 +84,12 @@ export default function Tile({ member, index, onHover, onClick }: TileProps) {
         if (member && onClick) onClick(member);
       }}
     >
-      {/* The tile image — rendered at full size, no background/border/rotation */}
       <img
         src={imageSrc}
         alt={member ? `${member.name} (${stage})` : 'Empty tile'}
         className="w-full h-full object-contain pixel-img transition-all duration-200 group-hover:brightness-125 group-hover:drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]"
         draggable={false}
       />
-      {/* Member name label */}
       {member && (
         <div
           className="absolute bottom-1 left-1/2 -translate-x-1/2 font-pixel text-[0.35rem] text-accent-glow opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none"

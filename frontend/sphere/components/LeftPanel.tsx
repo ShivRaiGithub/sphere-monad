@@ -1,13 +1,24 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import type { StageThresholds } from './Tile';
 
 interface LeftPanelProps {
   gridSize: number;
   onGridSizeChange: (size: number) => void;
+  thresholds: StageThresholds;
+  onThresholdsChange: (t: StageThresholds) => void;
 }
 
-export default function LeftPanel({ gridSize, onGridSizeChange }: LeftPanelProps) {
+const STAGE_LABELS: { key: keyof StageThresholds; label: string; emoji: string }[] = [
+  { key: 'sprout', label: 'Sprout', emoji: '🌱' },
+  { key: 'stree', label: 'Small Tree', emoji: '🌿' },
+  { key: 'mtree', label: 'Medium Tree', emoji: '🌳' },
+  { key: 'ltree', label: 'Large Tree', emoji: '🌲' },
+  { key: 'etree', label: 'Elder Tree', emoji: '🏔️' },
+];
+
+export default function LeftPanel({ gridSize, onGridSizeChange, thresholds, onThresholdsChange }: LeftPanelProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [musicFile, setMusicFile] = useState<string | null>(null);
@@ -35,6 +46,10 @@ export default function LeftPanel({ gridSize, onGridSizeChange }: LeftPanelProps
     setIsPlaying(!isPlaying);
   };
 
+  const updateThreshold = (key: keyof StageThresholds, value: number) => {
+    onThresholdsChange({ ...thresholds, [key]: value });
+  };
+
   return (
     <div className={`relative bg-bg-panel/60 backdrop-blur-md border-r border-border/50 transition-all duration-300 flex flex-col z-10 shadow-[10px_0_30px_rgba(0,0,0,0.1)] ${collapsed ? 'w-10' : 'w-[280px]'}`}>
       <button
@@ -50,7 +65,7 @@ export default function LeftPanel({ gridSize, onGridSizeChange }: LeftPanelProps
           <h3 className="font-pixel text-[0.8rem] text-accent-glow mb-6 border-b border-border/40 pb-3 uppercase tracking-widest">Controls</h3>
 
           {/* Grid Size */}
-          <div className="mb-8 p-4 bg-bg-card/40 rounded-xl border border-border/30">
+          <div className="mb-6 p-4 bg-bg-card/40 rounded-xl border border-border/30">
             <label className="block text-[0.65rem] text-text-secondary uppercase tracking-[0.15em] font-bold mb-4">
               Grid Size: <span className="text-text-primary tracking-normal ml-1">{gridSize} × {gridSize}</span>
             </label>
@@ -68,15 +83,38 @@ export default function LeftPanel({ gridSize, onGridSizeChange }: LeftPanelProps
             </div>
           </div>
 
+          {/* Stage Thresholds */}
+          <div className="mb-6 p-4 bg-bg-card/40 rounded-xl border border-border/30">
+            <h4 className="font-pixel text-[0.65rem] text-accent mb-4 uppercase tracking-widest">Stage Thresholds</h4>
+            <p className="text-[0.6rem] text-text-muted mb-4">Points needed to reach each stage:</p>
+            <div className="flex flex-col gap-3">
+              {STAGE_LABELS.map(({ key, label, emoji }) => (
+                <div key={key} className="flex items-center gap-2">
+                  <span className="w-5 text-center text-sm">{emoji}</span>
+                  <span className="text-[0.6rem] text-text-secondary w-16 truncate">{label}</span>
+                  <input
+                    type="number"
+                    min={0}
+                    max={999}
+                    value={thresholds[key]}
+                    onChange={(e) => updateThreshold(key, Math.max(0, Number(e.target.value)))}
+                    className="flex-1 px-2 py-1.5 bg-bg-primary/60 border border-border/50 rounded-lg text-text-primary text-xs text-center outline-none transition-colors focus:border-accent font-mono w-16"
+                  />
+                  <span className="text-[0.55rem] text-text-muted">pts</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Music */}
-          <div className="mb-8 p-4 bg-bg-card/40 rounded-xl border border-border/30">
+          <div className="mb-6 p-4 bg-bg-card/40 rounded-xl border border-border/30">
             <label className="block text-[0.65rem] text-text-secondary uppercase tracking-[0.15em] font-bold mb-4">Ambient Audio</label>
             <label className="block text-center py-3 bg-bg-card/50 backdrop-blur-sm border border-dashed border-border/60 rounded-xl text-sm font-body text-text-secondary cursor-pointer transition-all duration-300 hover:border-accent/60 hover:text-accent-glow hover:bg-bg-card shadow-inner">
               <span className="mr-2">🎵</span> Upload Track
               <input type="file" accept="audio/*" onChange={handleMusicUpload} className="hidden" />
             </label>
             {musicFile && (
-              <div className="mt-4 animate-slideDown">
+              <div className="mt-4">
                 <p className="text-[0.65rem] font-mono text-text-muted mb-3 overflow-hidden text-ellipsis whitespace-nowrap bg-bg-panel/50 px-2 py-1.5 rounded-md border border-border/40">{musicName}</p>
                 <button
                   onClick={toggleMusic}

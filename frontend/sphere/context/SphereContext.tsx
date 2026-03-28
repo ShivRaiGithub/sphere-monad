@@ -30,6 +30,7 @@ export interface Member {
   intro: string;
   joinedAt: bigint;
   lastMessageAt: bigint;
+  messageCount: bigint;
   status: number; // 0 = Active, 1 = Removed
 }
 

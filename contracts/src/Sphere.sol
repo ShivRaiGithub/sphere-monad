@@ -23,6 +23,7 @@ contract Sphere {
         string  intro;
         uint256 joinedAt;
         uint256 lastMessageAt;
+        uint256 messageCount;
         Status  status;
     }
 
@@ -121,6 +122,7 @@ contract Sphere {
             intro:         _intro,
             joinedAt:      block.timestamp,
             lastMessageAt: 0,
+            messageCount:  0,
             status:        Status.Active
         });
 
@@ -140,6 +142,7 @@ contract Sphere {
         );
 
         members[_communityId][msg.sender].lastMessageAt = block.timestamp;
+        members[_communityId][msg.sender].messageCount += 1;
         emit MessageSent(_communityId, msg.sender, _message, block.timestamp);
     }
 
@@ -168,6 +171,7 @@ contract Sphere {
             string[]  memory intros,
             uint256[] memory joinedAts,
             uint256[] memory lastMessageAts,
+            uint256[] memory messageCounts,
             Status[]  memory statuses
         )
     {
@@ -182,6 +186,7 @@ contract Sphere {
         intros         = new string[](size);
         joinedAts      = new uint256[](size);
         lastMessageAts = new uint256[](size);
+        messageCounts  = new uint256[](size);
         statuses       = new Status[](size);
 
         for (uint256 i = 0; i < size; i++) {
@@ -191,6 +196,7 @@ contract Sphere {
             intros[i] = members[_communityId][wallets[i]].intro;
             joinedAts[i] = members[_communityId][wallets[i]].joinedAt;
             lastMessageAts[i] = members[_communityId][wallets[i]].lastMessageAt;
+            messageCounts[i] = members[_communityId][wallets[i]].messageCount;
             statuses[i] = members[_communityId][wallets[i]].status;
         }
     }
