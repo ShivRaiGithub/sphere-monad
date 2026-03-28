@@ -1,16 +1,17 @@
 'use client';
 
-import { useState, useCallback, use } from 'react';
+import { useState, useCallback, use, useRef, useEffect } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useMembers } from '@/hooks/useMembers';
 import Grid from '@/components/Grid';
 import LeftPanel from '@/components/LeftPanel';
 import RightPanel from '@/components/RightPanel';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useReadContract } from 'wagmi';
 import { useSphereContract } from '@/hooks/useSphereContract';
 import type { Member } from '@/context/SphereContext';
-import { computePoints, getGrowthStage, DEFAULT_THRESHOLDS, DEFAULT_WEIGHTS } from '@/components/Tile';
+import { computePoints, getGrowthStage, STAGE_IMAGES, DEFAULT_THRESHOLDS, DEFAULT_WEIGHTS } from '@/components/Tile';
 import type { StageThresholds, PointWeights } from '@/components/Tile';
 
 interface CommunityPageProps {
@@ -39,6 +40,9 @@ export default function CommunityPage({ params }: CommunityPageProps) {
   const [weights, setWeights] = useState<PointWeights>(DEFAULT_WEIGHTS);
   const [shuffledOrder, setShuffledOrder] = useState<number[] | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isMusicMuted, setIsMusicMuted] = useState(false);
+  const [timeOfDay, setTimeOfDay] = useState<'day' | 'night' | 'rain'>('day');
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const contract = useSphereContract();
   const { members, totalMembers, isLoading } = useMembers(communityId, gridSize);
@@ -64,18 +68,40 @@ export default function CommunityPage({ params }: CommunityPageProps) {
     setShuffledOrder(indices);
   }, [gridSize]);
 
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.volume = 0.42;
+    if (!isMusicMuted) {
+      setTimeout(() => {
+        audio.play().catch(() => {
+          // Browser autoplay policies may require user interaction before playback.
+        });
+      }, 50);
+    }
+  }, [isMusicMuted, timeOfDay]);
+
+  const selectedMemberStage = selectedMember ? getGrowthStage(selectedMember, weights, thresholds) : null;
+
   return (
-    <div className="min-h-screen flex flex-col bg-bg-primary font-body">
+    <div className="relative min-h-screen flex flex-col overflow-hidden font-body">
+      <div className="absolute inset-0 -z-10">
+        <Image src="/bg2.png" alt="Community background" fill priority className="object-cover object-center" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(52,211,153,0.16)_0%,transparent_58%)]" />
+      </div>
+
+      <audio ref={audioRef} src={`/songs/${timeOfDay === 'day' ? 'spring' : timeOfDay}.mp3`} autoPlay loop muted={isMusicMuted} preload="auto" />
+
       {/* Header — hidden in fullscreen */}
       {!isFullscreen && (
-        <header className="flex items-center justify-between px-6 py-3 border-b border-border/40 bg-bg-secondary/60 backdrop-blur-md z-40 shadow-sm">
+        <header className="flex items-center justify-between px-7 py-4 border-b border-border/35 bg-bg-secondary/45 backdrop-blur-lg z-50 shadow-sm">
           <div className="flex items-center gap-6">
-            <Link href="/home" className="font-body text-sm font-medium text-text-secondary px-4 py-2 rounded-lg transition-all duration-300 hover:text-white hover:bg-bg-hover">
+            <Link href="/home" className="font-body text-base font-medium text-text-secondary px-4 py-2.5 rounded-lg transition-all duration-300 hover:text-white hover:bg-bg-hover">
               ← Back
             </Link>
             <div className="flex items-center gap-4 border-l border-border/50 pl-6">
-              <h1 className="font-pixel text-[0.8rem] text-white tracking-widest uppercase">{communityName}</h1>
-              <span className="text-sm font-body text-text-secondary bg-bg-card/50 px-3 py-1 rounded-full border border-border/50">
+              <h1 className="font-pixel text-[1.04rem] text-white tracking-wider uppercase">{communityName}</h1>
+              <span className="text-base font-body text-text-secondary bg-bg-card/50 px-3.5 py-1.5 rounded-full border border-border/50">
                 {totalMembers} member{totalMembers !== 1 ? 's' : ''}
               </span>
             </div>
@@ -86,6 +112,12 @@ export default function CommunityPage({ params }: CommunityPageProps) {
 
       {/* 3-Panel Layout */}
       <div className="flex flex-1 overflow-hidden relative">
+        {timeOfDay === 'night' && (
+          <div className="fixed inset-0 z-30 pointer-events-none bg-[#020817]/70 transition-colors duration-1000" />
+        )}
+        {timeOfDay === 'rain' && (
+          <div className="fixed inset-0 z-30 pointer-events-none bg-slate-800/50 transition-colors duration-1000" />
+        )}
         <LeftPanel
           gridSize={gridSize}
           onGridSizeChange={(s) => { setGridSize(s); setShuffledOrder(null); }}
@@ -122,6 +154,10 @@ export default function CommunityPage({ params }: CommunityPageProps) {
           onWeightsChange={setWeights}
           onShuffle={handleShuffle}
           onFullscreen={() => setIsFullscreen(!isFullscreen)}
+          isMusicMuted={isMusicMuted}
+          onToggleMusicMute={() => setIsMusicMuted((prev) => !prev)}
+          timeOfDay={timeOfDay}
+          onTimeOfDayChange={setTimeOfDay}
           hidden={isFullscreen}
         />
       </div>
@@ -138,7 +174,7 @@ export default function CommunityPage({ params }: CommunityPageProps) {
 
       {/* Member Detail Modal */}
       {selectedMember && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
           <div 
             className="absolute inset-0 bg-[#0f172a]/60 backdrop-blur-sm transition-opacity" 
             onClick={() => setSelectedMember(null)} 
@@ -148,7 +184,7 @@ export default function CommunityPage({ params }: CommunityPageProps) {
             className="relative w-full max-w-sm bg-bg-secondary/90 backdrop-blur-xl border border-border/50 rounded-3xl p-8 shadow-2xl" 
             style={{ animation: 'slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}
           >
-            <button 
+            <button
               onClick={() => setSelectedMember(null)}
               className="absolute top-6 right-6 text-text-muted hover:text-white transition-colors text-xl font-body cursor-pointer"
             >
@@ -156,8 +192,16 @@ export default function CommunityPage({ params }: CommunityPageProps) {
             </button>
             
             <div className="flex items-center gap-5 mb-6">
-               <div className="w-16 h-16 bg-bg-card/80 border border-border/60 rounded-2xl flex items-center justify-center shadow-inner">
-                 <span className="text-3xl drop-shadow-md">🌳</span>
+               <div className="w-16 h-16 bg-bg-card/80 border border-border/60 rounded-2xl flex items-center justify-center shadow-inner p-2.5">
+                 {selectedMemberStage && (
+                   <Image
+                     src={STAGE_IMAGES[selectedMemberStage]}
+                     alt={`${selectedMember.name} stage asset`}
+                     width={64}
+                     height={64}
+                     className="h-full w-full object-contain pixel-img"
+                   />
+                 )}
                </div>
                <div>
                  <h2 className="font-pixel text-[1.1rem] text-accent-glow mb-2 uppercase tracking-wide">{selectedMember.name}</h2>

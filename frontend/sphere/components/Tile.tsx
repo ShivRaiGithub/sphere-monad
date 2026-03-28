@@ -57,6 +57,21 @@ export function getGrowthStage(member: Member, weights: PointWeights, thresholds
   return 'grass';
 }
 
+function getStageScaleClass(stage: GrowthStage): string {
+  switch (stage) {
+    case 'stree':
+      return 'scale-[1.22]';
+    case 'mtree':
+      return 'scale-[1.3]';
+    case 'ltree':
+      return 'scale-[1.4]';
+    case 'etree':
+      return 'scale-[1.48]';
+    default:
+      return 'scale-100';
+  }
+}
+
 interface TileProps {
   member: Member | null;
   index: number;
@@ -69,6 +84,7 @@ interface TileProps {
 export default function Tile({ member, index, onHover, onClick, weights, thresholds }: TileProps) {
   const stage: GrowthStage = member ? getGrowthStage(member, weights, thresholds) : 'grass';
   const imageSrc = STAGE_IMAGES[stage];
+  const stageScaleClass = getStageScaleClass(stage);
 
   return (
     <div
@@ -87,7 +103,7 @@ export default function Tile({ member, index, onHover, onClick, weights, thresho
       <img
         src={imageSrc}
         alt={member ? `${member.name} (${stage})` : 'Empty tile'}
-        className="w-full h-full object-contain pixel-img transition-all duration-200 group-hover:brightness-125 group-hover:drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]"
+        className={`h-full w-full object-contain pixel-img transition-all duration-200 ${stageScaleClass} group-hover:brightness-125 group-hover:drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]`}
         draggable={false}
       />
       {member && (

@@ -1,7 +1,8 @@
 'use client';
 
+import Image from 'next/image';
 import { Member } from '@/context/SphereContext';
-import { getGrowthStage, computePoints, type PointWeights, type StageThresholds } from './Tile';
+import { getGrowthStage, computePoints, STAGE_IMAGES, type PointWeights, type StageThresholds } from './Tile';
 
 interface HoverCardProps {
   member: Member | null;
@@ -31,18 +32,29 @@ export default function HoverCard({ member, position, weights, thresholds }: Hov
 
   return (
     <div
-      className="fixed -translate-x-1/2 -translate-y-[115%] bg-bg-card/85 backdrop-blur-md border border-border/60 rounded-2xl p-5 min-w-[260px] max-w-[300px] pointer-events-none z-[100] shadow-[0_20px_50px_rgba(0,0,0,0.4)]"
+      className="fixed -translate-x-1/2 -translate-y-[115%] bg-bg-card/85 backdrop-blur-md border border-border/60 rounded-2xl p-5 min-w-65 max-w-75 pointer-events-none z-100 shadow-[0_20px_50px_rgba(0,0,0,0.4)]"
       style={{
         left: position.x,
         top: position.y,
         animation: 'hoverAppear 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
       }}
     >
-      <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent rounded-2xl opacity-50 z-0" />
+      <div className="absolute inset-0 bg-linear-to-b from-white/5 to-transparent rounded-2xl opacity-50 z-0" />
       
       <div className="relative z-10 font-body">
         <div className="flex items-center justify-between mb-4 border-b border-border/40 pb-3">
-          <span className="font-pixel text-[0.8rem] text-accent-glow tracking-wide">{member.name}</span>
+          <div className="flex items-center gap-3">
+            <div className="h-12 w-12 rounded-xl border border-border/50 bg-bg-panel/55 p-1.5 shadow-inner">
+              <Image
+                src={STAGE_IMAGES[stage]}
+                alt={`${member.name} stage asset`}
+                width={48}
+                height={48}
+                className="h-full w-full object-contain pixel-img"
+              />
+            </div>
+            <span className="font-pixel text-[0.8rem] text-accent-glow tracking-wide">{member.name}</span>
+          </div>
           <span className="text-[0.65rem] font-bold text-text-secondary bg-bg-panel px-2 py-0.5 rounded-md border border-border/50 font-mono">
             #{Number(member.serial)}
           </span>
