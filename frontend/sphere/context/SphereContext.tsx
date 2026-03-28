@@ -38,7 +38,7 @@ interface SphereContextType {
   contractAddress: `0x${string}`;
   abi: typeof SPHERE_ABI;
   // write helpers
-  createCommunity: (name: string, creator: `0x${string}`) => void;
+  createCommunity: (name: string) => void;
   register: (communityId: bigint, name: string, intro: string) => void;
   sendMessage: (communityId: bigint, message: string) => void;
   // write state
@@ -56,6 +56,7 @@ const SphereContext = createContext<SphereContextType | null>(null);
 
 export function SphereProvider({ children }: { children: ReactNode }) {
   const contractAddress = getContractAddress();
+  const { address } = useAccount();
   const {
     writeContract,
     data: txHash,
@@ -69,15 +70,16 @@ export function SphereProvider({ children }: { children: ReactNode }) {
   });
 
   const createCommunity = useCallback(
-    (name: string, creator: `0x${string}`) => {
+    (name: string) => {
+      if (!address) return;
       writeContract({
         address: contractAddress,
         abi: SPHERE_ABI,
         functionName: 'createCommunity',
-        args: [name, creator],
+        args: [name, address],
       });
     },
-    [writeContract, contractAddress]
+    [writeContract, contractAddress, address]
   );
 
   const register = useCallback(

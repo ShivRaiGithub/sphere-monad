@@ -16,13 +16,11 @@ export default function HomePage() {
 
   const [showCreate, setShowCreate] = useState(false);
   const [communityName, setCommunityName] = useState('');
-  const [creatorAddress, setCreatorAddress] = useState('');
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!communityName.trim()) return;
-    const creator = (creatorAddress.trim() || address) as `0x${string}`;
-    createCommunity(communityName.trim(), creator);
+    if (!communityName.trim() || !address) return;
+    createCommunity(communityName.trim());
   };
 
   return (
@@ -99,20 +97,13 @@ export default function HomePage() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs font-medium uppercase tracking-[0.14em] text-cyan-100/85">Creator Address (Optional)</label>
-                <input
-                  type="text"
-                  value={creatorAddress}
-                  onChange={(e) => setCreatorAddress(e.target.value)}
-                  placeholder={address ? `${address.slice(0, 8)}...` : '0x...'}
-                  className="w-full rounded-xl border border-white/25 bg-slate-800/70 px-4 py-3 font-mono text-sm text-slate-100 outline-none transition focus:border-cyan-300/80 focus:shadow-[0_0_0_3px_rgba(56,189,248,0.2)]"
-                />
-              </div>
+              <p className="rounded-xl border border-cyan-200/35 bg-cyan-900/20 px-3 py-2 font-mono text-xs text-cyan-100/90">
+                Owner is fixed to connected wallet: {address ?? 'Connect wallet to continue'}
+              </p>
 
               <button
                 type="submit"
-                disabled={isPending || isConfirming}
+                disabled={isPending || isConfirming || !address}
                 className="w-full rounded-xl border border-emerald-300/70 bg-emerald-400/85 px-5 py-3 text-sm font-semibold text-emerald-950 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_15px_34px_rgba(74,222,128,0.45)] disabled:cursor-not-allowed disabled:opacity-55"
               >
                 {isPending ? 'Confirm Wallet Transaction...' : isConfirming ? 'Creating Community...' : 'Create Community'}
