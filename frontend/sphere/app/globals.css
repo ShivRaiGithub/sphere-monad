@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-bg-primary: #080c14;
-  --color-bg-secondary: #0d1420;
-  --color-bg-card: #111827;
-  --color-bg-panel: #0f172a;
-  --color-bg-hover: #1e293b;
+  --color-bg-primary: #051025;
+  --color-bg-secondary: #0a1f44;
+  --color-bg-card: #0f2b5c;
+  --color-bg-panel: #0d2551;
+  --color-bg-hover: #163a7a;
   --color-accent: #10b981;
   --color-accent-glow: #34d399;
-  --color-accent-dim: #065f46;
+  --color-accent-dim: #074a36;
   --color-text-primary: #e2e8f0;
   --color-text-secondary: #94a3b8;
   --color-text-muted: #64748b;
@@ -64,13 +64,6 @@ a {
 @keyframes hoverAppear {
   from { opacity: 0; transform: translate(-50%, -100%) translateY(6px); }
   to { opacity: 1; transform: translate(-50%, -100%) translateY(0); }
-}
-
-/* Isometric grid */
-.isometric-grid {
-  transform: rotateX(30deg) rotateZ(45deg);
-  transform-style: preserve-3d;
-  perspective: 1000px;
 }
 
 /* Pixel image rendering */

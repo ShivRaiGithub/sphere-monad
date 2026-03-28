@@ -1,9 +1,14 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import Tile from './Tile';
 import HoverCard from './HoverCard';
 import { Member } from '@/context/SphereContext';
+
+// ── Isometric Config ──
+// These match the diamond shape of the tile assets (~2:1 aspect ratio)
+const TILE_WIDTH = 110;
+const TILE_HEIGHT = 55;
 
 interface GridProps {
   members: Member[];
@@ -26,27 +31,63 @@ export default function Grid({ members, gridSize }: GridProps) {
     }
   }, []);
 
-  const totalTiles = gridSize * gridSize;
-  const tileSize = Math.max(60, Math.min(100, 400 / gridSize));
+  // Compute total grid dimensions for centering
+  const gridDimensions = useMemo(() => {
+    // The isometric grid forms a diamond shape.
+    // Total width = gridSize * TILE_WIDTH (columns spread left-right)
+    // Total height = gridSize * TILE_HEIGHT (rows spread top-bottom)
+    // Plus half-tile offsets
+    const totalWidth = gridSize * TILE_WIDTH;
+    const totalHeight = gridSize * TILE_HEIGHT;
+    // Center offset: shift everything right by half the total width
+    const offsetX = (gridSize - 1) * (TILE_WIDTH / 2);
+    const offsetY = 0;
+    return { totalWidth, totalHeight, offsetX, offsetY };
+  }, [gridSize]);
 
-  const tiles = Array.from({ length: totalTiles }, (_, i) => {
-    const member = i < members.length ? members[i] : null;
-    return (
-      <Tile key={i} index={i} member={member} onHover={handleHover} />
-    );
-  });
+  // Build tile data with isometric positions
+  const tiles = useMemo(() => {
+    const result = [];
+    for (let row = 0; row < gridSize; row++) {
+      for (let col = 0; col < gridSize; col++) {
+        const i = row * gridSize + col;
+        const member = i < members.length ? members[i] : null;
+
+        // Isometric projection: cartesian (row, col) → screen (x, y)
+        const screenX = (col - row) * (TILE_WIDTH / 2) + gridDimensions.offsetX;
+        const screenY = (col + row) * (TILE_HEIGHT / 2) + gridDimensions.offsetY;
+        const zIndex = row + col;
+
+        result.push({ row, col, member, screenX, screenY, zIndex, index: i });
+      }
+    }
+    return result;
+  }, [gridSize, members, gridDimensions]);
 
   return (
-    <div className="relative">
-      <div
-        className="isometric-grid grid gap-1"
-        style={{
-          gridTemplateColumns: `repeat(${gridSize}, ${tileSize}px)`,
-          gridTemplateRows: `repeat(${gridSize}, ${tileSize}px)`,
-        }}
-      >
-        {tiles}
-      </div>
+    <div className="relative" style={{
+      width: gridDimensions.totalWidth,
+      height: gridDimensions.totalHeight + TILE_HEIGHT,
+    }}>
+      {tiles.map((tile) => (
+        <div
+          key={tile.index}
+          className="absolute"
+          style={{
+            left: tile.screenX,
+            top: tile.screenY,
+            width: TILE_WIDTH,
+            height: TILE_HEIGHT,
+            zIndex: tile.zIndex,
+          }}
+        >
+          <Tile
+            member={tile.member}
+            index={tile.index}
+            onHover={handleHover}
+          />
+        </div>
+      ))}
       <HoverCard member={hoveredMember} position={hoverPosition} />
     </div>
   );

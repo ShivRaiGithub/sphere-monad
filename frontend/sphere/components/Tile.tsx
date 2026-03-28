@@ -37,7 +37,7 @@ export default function Tile({ member, index, onHover }: TileProps) {
 
   return (
     <div
-      className="relative aspect-square cursor-pointer group"
+      className="w-full h-full cursor-pointer group relative"
       onMouseEnter={(e) => {
         if (member) {
           const rect = e.currentTarget.getBoundingClientRect();
@@ -46,19 +46,22 @@ export default function Tile({ member, index, onHover }: TileProps) {
       }}
       onMouseLeave={() => onHover(null, null)}
     >
-      <div className="w-full h-full flex flex-col items-center justify-center bg-[#0d1a0d] border border-[#1a3a1a] rounded relative transition-all duration-250 overflow-hidden group-hover:border-accent group-hover:shadow-[0_0_16px_rgba(16,185,129,0.2)] group-hover:scale-105 group-hover:z-10">
-        <img
-          src={imageSrc}
-          alt={member ? `${member.name} (${stage})` : 'Empty tile'}
-          className="w-[70%] h-[70%] object-contain pixel-img transition-transform duration-300 group-hover:scale-115"
-          draggable={false}
-        />
-        {member && (
-          <div className="absolute bottom-0.5 font-pixel text-[0.3rem] text-accent-glow opacity-0 group-hover:opacity-100 transition-opacity duration-250" style={{ textShadow: '0 1px 2px #000' }}>
-            {member.name}
-          </div>
-        )}
-      </div>
+      {/* The tile image — rendered at full size, no background/border/rotation */}
+      <img
+        src={imageSrc}
+        alt={member ? `${member.name} (${stage})` : 'Empty tile'}
+        className="w-full h-full object-contain pixel-img transition-all duration-200 group-hover:brightness-125 group-hover:drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]"
+        draggable={false}
+      />
+      {/* Member name label */}
+      {member && (
+        <div
+          className="absolute bottom-1 left-1/2 -translate-x-1/2 font-pixel text-[0.35rem] text-accent-glow opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none"
+          style={{ textShadow: '0 1px 3px #000, 0 0 6px #000' }}
+        >
+          {member.name}
+        </div>
+      )}
     </div>
   );
 }
